@@ -1,0 +1,43 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  List<DiscoveredDevice> _devices = [];
+
+  @override
+  void initState() {
+    super.initState();
+    initBle();
+  }
+
+  Future<void> initBle() async {
+    await FlutterReactiveBle.instance.enableBluetooth();
+    FlutterReactiveBle.instance
+        .observeScan()
+        .listen((scanResult) => setState(() => _devices.add(scanResult.device)));
+    FlutterReactiveBle.instance.startScan();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Flutter BLE Example'),
+      ),
+      body: ListView.builder(
+        itemCount: _devices.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(_devices[index].name),
+            subtitle: Text(_devices[index].id.toString()),
+          );
+        },
+      ),
+    );
+  }
+}
